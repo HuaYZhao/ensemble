@@ -306,8 +306,7 @@ def main2(dataset, preds, na_probs):
     if no_ans_qids:
         no_ans_eval = make_eval_dict(exact_thresh, f1_thresh, qid_list=no_ans_qids)
         merge_eval(out_eval, no_ans_eval, 'NoAns')
-    if OPTS.na_prob_file:
-        find_all_best_thresh(out_eval, preds, exact_raw, f1_raw, na_probs, qid_to_has_ans)
+    find_all_best_thresh(out_eval, preds, exact_raw, f1_raw, na_probs, qid_to_has_ans)
     return out_eval
 
 

@@ -30,7 +30,7 @@ def per_tpu_run(tpu_id, train_data_range):
         xargs = f"gsutil cp bootstrap_train_{i}.json gs://squad_cx/electra_data{tpu_id}/finetuning_data/squad/train.json"
         os.system(xargs)
 
-        xargs = f"""cd ../atrlp && python3 run_finetuning.py   --data-dir=gs://squad_cx/electra_data{tpu_id} --model-name=electra_large   --hparams '{"model_size": "large", "task_names": ["squad"], "num_train_epochs": 2, "use_tpu": true, "num_tpu_cores": 8, "tpu_name": "{TPU_NAMES[tpu_id - 1]}", "train_batch_size": 32, "eval_batch_size": 32, "predict_batch_size": 32, "max_seq_length": 512, "learning_rate": 5e-05, "use_tfrecords_if_existing": false, "num_trials": 1, "do_train": true, "do_eval": true, "save_checkpoints_steps": 100000 }' """
+        xargs = f"""cd ../atrlp && python3 run_finetuning.py   --data-dir=gs://squad_cx/electra_data{tpu_id} --model-name=electra_large   --hparams '{{"model_size": "large", "task_names": ["squad"], "num_train_epochs": 2, "use_tpu": true, "num_tpu_cores": 8, "tpu_name": "{TPU_NAMES[tpu_id - 1]}", "train_batch_size": 32, "eval_batch_size": 32, "predict_batch_size": 32, "max_seq_length": 512, "learning_rate": 5e-05, "use_tfrecords_if_existing": false, "num_trials": 1, "do_train": true, "do_eval": true, "save_checkpoints_steps": 100000 }}' """
         os.system(xargs)
 
         xargs = f"gsutil -m cp -r gs://squad_cx/electra_data{tpu_id}/models/electra_large/finetuning_models/squad_model_1 gs://squad_cx/bootstrap_models/{i}"

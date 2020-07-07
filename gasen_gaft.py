@@ -87,6 +87,8 @@ def ensemble_fitness(indv):
                                .filter(lambda x: x[1] >= 0.5)
                                .map(lambda x: x[0])
                                ).dict()
+    if not indv_models_predictions:
+        return -sum(indv.solution)
 
     ensemble_preds = collections.OrderedDict()
     ensemble_odds = collections.OrderedDict()

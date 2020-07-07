@@ -31,6 +31,6 @@ def per_tpu_run(tpu_id, train_data_range):
 
 
 if __name__ == '__main__':
-    _thread.start_new_thread(per_tpu_run_times, (1, range(13),))
-    _thread.start_new_thread(per_tpu_run_times, (2, range(13, 26),))
-    _thread.start_new_thread(per_tpu_run_times, (3, range(26, 39),))
+    _thread.start_new_thread(per_tpu_run, (1, range(13),))
+    _thread.start_new_thread(per_tpu_run, (2, range(13, 26),))
+    _thread.start_new_thread(per_tpu_run, (3, range(26, 39),))

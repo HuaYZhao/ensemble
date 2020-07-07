@@ -78,7 +78,7 @@ engine = GAEngine(population=population, selection=selection,
 
 
 @engine.fitness_register
-def ensemble_fitness(indv):
+def ensemble_fitness(indv, check_best=False):
     assert models_predictions
 
     # Normalise weights
@@ -106,7 +106,8 @@ def ensemble_fitness(indv):
                                       .map(lambda x: x[1]['squad_null_odds'][qid])
                                       ).list())
     eval_r = main2(dev['data'], ensemble_preds, ensemble_odds)
-
+    if check_best:
+        return eval_r['best_exact'], eval_r['best_f1']
     fitness = eval_r['best_exact'] + eval_r['best_f1'] + -sum(indv.solution)
     return fitness
 
@@ -118,7 +119,10 @@ class ConsoleOutput(OnTheFlyAnalysis):
 
     def register_step(self, g, population, engine):
         best_indv = population.best_indv(engine.fitness)
-        msg = 'Generation: {}, best fitness: {:.3f}'.format(g, engine.fmax)
+        best_exact, best_f1 = ensemble_fitness(best_indv, check_best=True)
+        msg = 'Generation: {}, best fitness: {:.4f}, best fitness: {:.4f}, best fitness: {:.4f}'.format(g, engine.fmax,
+                                                                                                        best_exact,
+                                                                                                        best_f1)
         engine.logger.info(msg)
 
 

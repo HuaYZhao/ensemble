@@ -8,7 +8,7 @@ import pickle
 import collections
 import typing
 from functional import seq
-from eval import compute_f1, compute_exact, normalize_answer
+from eval import compute_f1, compute_exact, normalize_answer, main2
 from sklearn import preprocessing
 import numpy as np
 from gaft import GAEngine
@@ -77,43 +77,36 @@ engine = GAEngine(population=population, selection=selection,
                   analysis=[FitnessStore])
 
 
-# @engine.fitness_register
-# def fitness(indv):
-#     x, = indv.solution
-#     return x + 10 * sin(5 * x).__float__() + 7 * cos(4 * x).__float__()
-
-
 @engine.fitness_register
 def ensemble_fitness(indv):
     assert models_predictions
 
     # Normalise weights
-    weights = preprocessing.normalize(np.reshape(indv.solution, (1, -1)), axis=1, norm='l1')
+    # weights = preprocessing.normalize(np.reshape(indv.solution, (1, -1)), axis=1, norm='l1')
+    indv_models_predictions = (seq(zip(*(models_predictions.items(), indv.solution)))
+                               .filter(lambda x: x[1] >= 0.5)
+                               .map(lambda x: x[0])
+                               ).dict()
 
     ensemble_preds = collections.OrderedDict()
-    exact_scores = collections.OrderedDict()
-    f1_scores = collections.OrderedDict()
+    ensemble_odds = collections.OrderedDict()
     for qid in qid_answers.keys():
-        best_pred = (seq(models_predictions.values())
-                     .enumerate()
-                     .map(lambda x: [x[0], x[1]['eval_all_nbest'][qid][0]])
-                     .map(lambda x: [x[1]['text'], x[1]['probability'] * weights[0, x[0]]])
-                     .sorted(key=lambda x: x[1])
-                     .reverse()
-                     .map(lambda x: x[0])
-                     ).list()[0]
-        is_impossible = (seq(models_predictions.values())
-                         .enumerate()
-                         .map(lambda x: x[1]['is_impossible'][qid] * weights[0, x[0]])
-                         ).sum() > 0
-        if is_impossible:
-            ensemble_preds[qid] = ""
-        else:
-            ensemble_preds[qid] = best_pred
-        exact_scores[qid] = max(compute_exact(a, ensemble_preds[qid]) for a in qid_answers[qid])
-        f1_scores[qid] = max(compute_f1(a, ensemble_preds[qid]) for a in qid_answers[qid])
+        ensemble_preds[qid] = (seq(indv_models_predictions.values())
+                               .enumerate()
+                               .map(lambda x: [x[0], x[1]['eval_all_nbest'][qid][0]])
+                               .map(lambda x: [x[1]['text'], x[1]['probability']])
+                               .sorted(key=lambda x: x[1])
+                               .reverse()
+                               .map(lambda x: x[0])
+                               ).list()[0]
+        ensemble_odds[qid] = np.mean((seq(indv_models_predictions.values())
+                                      .enumerate()
+                                      .map(lambda x: x[1]['squad_null_odds'][qid])
+                                      ).list())
+    eval_r = main2(dev['data'], ensemble_preds, ensemble_odds)
 
-    return float((np.mean(list(exact_scores.values())) + np.mean(list(f1_scores.values()))) / 2)
+    fitness = eval_r['best_exact'] + eval_r['best_f1'] + -sum(indv.solution)
+    return fitness
 
 
 @engine.analysis_register

@@ -4,14 +4,24 @@
 # @email   : zhaohuayang@myhexin.com
 import os
 from data_sampling import generate_bootstrap_train_data
-import _thread
+import threading
 
 TPU_NAMES = ['z1', 'z2', 'c1', ]
 
 per_tpu_run_times = 13
 bootstrap_times = len(TPU_NAMES) * per_tpu_run_times
 
+
 # generate_bootstrap_train_data(bootstrap_times)
+
+class myThread(threading.Thread):
+    def __init__(self, tpu_id, train_data_range):
+        threading.Thread.__init__(self)
+        self.tpu_id = tpu_id
+        self.train_data_range = train_data_range
+
+    def run(self):
+        per_tpu_run(self.tpu_id, self.train_data_range)
 
 
 def per_tpu_run(tpu_id, train_data_range):
@@ -31,6 +41,16 @@ def per_tpu_run(tpu_id, train_data_range):
 
 
 if __name__ == '__main__':
-    _thread.start_new_thread(per_tpu_run, (1, range(13),))
-    _thread.start_new_thread(per_tpu_run, (2, range(13, 26),))
-    _thread.start_new_thread(per_tpu_run, (3, range(26, 39),))
+    # 创建新线程
+    thread1 = myThread(1, range(13))
+    thread2 = myThread(2, range(13, 26), )
+    thread3 = myThread(3, range(26, 39), )
+    # 开启新线程
+    thread1.start()
+    thread2.start()
+    thread3.start()
+
+    thread1.join()
+    thread2.join()
+    thread3.join()
+    print("退出主线程")

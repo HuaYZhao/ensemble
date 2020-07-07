@@ -11,11 +11,12 @@ TPU_NAMES = ['z1', 'z2', 'c1', ]
 per_tpu_run_times = 13
 bootstrap_times = len(TPU_NAMES) * per_tpu_run_times
 
-generate_bootstrap_train_data(bootstrap_times)
+# generate_bootstrap_train_data(bootstrap_times)
 
 
 def per_tpu_run(tpu_id, train_data_range):
     for i in train_data_range:
+        print(f"train bootstrap {i}")
         xargs = f"gsutil cp bootstrap_train_{i}.json gs://squad_cx/electra_data{tpu_id}/finetuning_data/squad/train.json"
         os.system(xargs)
 

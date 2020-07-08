@@ -78,7 +78,41 @@ engine = GAEngine(population=population, selection=selection,
 
 
 @engine.fitness_register
-def ensemble_fitness(indv, check_best=False):
+def ensemble_fitness(indv):
+    assert models_predictions
+
+    # Normalise weights
+    # weights = preprocessing.normalize(np.reshape(indv.solution, (1, -1)), axis=1, norm='l1')
+    indv_models_predictions = (seq(zip(*(models_predictions.items(), indv.solution)))
+                               .filter(lambda x: x[1] >= 0.5)
+                               .map(lambda x: x[0])
+                               ).dict()
+
+    cof = list(map(lambda x: float(x >= 0.5), indv.solution))
+    if not indv_models_predictions:
+        return -sum(cof)
+
+    ensemble_preds = collections.OrderedDict()
+    ensemble_odds = collections.OrderedDict()
+    for qid in qid_answers.keys():
+        ensemble_preds[qid] = (seq(indv_models_predictions.values())
+                               .enumerate()
+                               .map(lambda x: [x[0], x[1]['eval_all_nbest'][qid][0]])
+                               .map(lambda x: [x[1]['text'], x[1]['probability']])
+                               .sorted(key=lambda x: x[1])
+                               .reverse()
+                               .map(lambda x: x[0])
+                               ).list()[0]
+        ensemble_odds[qid] = np.mean((seq(indv_models_predictions.values())
+                                      .enumerate()
+                                      .map(lambda x: x[1]['squad_null_odds'][qid])
+                                      ).list())
+    eval_r = main2(dev['data'], ensemble_preds, ensemble_odds)
+    fitness = eval_r['best_exact'] + eval_r['best_f1'] + -sum(cof) * 0.001
+    return fitness
+
+
+def look_fitness(indv):
     assert models_predictions
 
     # Normalise weights
@@ -106,10 +140,7 @@ def ensemble_fitness(indv, check_best=False):
                                       .map(lambda x: x[1]['squad_null_odds'][qid])
                                       ).list())
     eval_r = main2(dev['data'], ensemble_preds, ensemble_odds)
-    if check_best:
-        return eval_r['best_exact'], eval_r['best_f1']
-    fitness = eval_r['best_exact'] + eval_r['best_f1'] + -sum(indv.solution)
-    return fitness
+    return eval_r['best_exact'], eval_r['best_f1']
 
 
 @engine.analysis_register
@@ -119,10 +150,10 @@ class ConsoleOutput(OnTheFlyAnalysis):
 
     def register_step(self, g, population, engine):
         best_indv = population.best_indv(engine.fitness)
-        best_exact, best_f1 = ensemble_fitness(best_indv, check_best=True)
-        msg = 'Generation: {}, best fitness: {:.4f}, best fitness: {:.4f}, best fitness: {:.4f}'.format(g, engine.fmax,
-                                                                                                        best_exact,
-                                                                                                        best_f1)
+        best_exact, best_f1 = look_fitness(best_indv)
+        msg = 'Generation: {}, best fitness: {:.4f}, best exact: {:.4f}, best f1: {:.4f}'.format(g, engine.fmax,
+                                                                                                 best_exact,
+                                                                                                 best_f1)
         engine.logger.info(msg)
 
 

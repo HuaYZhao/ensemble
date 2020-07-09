@@ -44,7 +44,7 @@ def load_models_predictions(dirs: typing.Any = './'):
     return model_prediction
 
 
-models_predictions = load_models_predictions()
+models_predictions = load_models_predictions(['bootstrap_results'])
 dev = json.load(open('dev-v2.0.json', 'r', encoding='utf-8'))
 qid_answers = collections.OrderedDict()
 for article in dev['data']:

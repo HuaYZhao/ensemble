@@ -44,7 +44,43 @@ def load_models_predictions(dirs: typing.Any = './'):
     return model_prediction
 
 
-models_predictions = load_models_predictions(['bootstrap_results'])
+# models_predictions = load_models_predictions(['bootstrap_results'])
+models = ["atrlp_results/3",
+          "atrlp_results/2",
+          "atrlp_results/4",
+          "atrlp_results/7",
+          "atrlp_results/8",
+          "lr_epoch_results/1e-05_2_2",
+          "lr_epoch_results/1e-05_3_1",
+          "lr_epoch_results/2e-05_2_3",
+          "lr_epoch_results/2e-05_3_1",
+          "lr_epoch_results/3.0000000000000004e-05_2_3",
+          "lr_epoch_results/3.0000000000000004e-05_3_2",
+          "lr_epoch_results/4e-05_2_2",
+          "lr_epoch_results/4e-05_3_3",
+          "lr_epoch_results/5e-05_2_2",
+          "lr_epoch_results/5e-05_3_1",
+          "lr_epoch_results/6e-05_2_1",
+          "lr_epoch_results/6e-05_3_1",
+          ]
+models_predictions = collections.OrderedDict()
+for d in models:
+    try:
+        prediction = collections.OrderedDict()
+        prediction['squad_eval'] = json.load(
+            open(os.path.join(d, 'squad_eval.json'), 'r', encoding='utf-8'))
+        prediction['squad_null_odds'] = json.load(
+            open(os.path.join(d, 'squad_null_odds.json'), 'r', encoding='utf-8'))
+        prediction['squad_preds'] = json.load(open(os.path.join(d, 'squad_preds.json'), 'r', encoding='utf-8'))
+        prediction['eval_all_nbest'] = pickle.load(open(os.path.join(d, 'eval_all_nbest.pkl'), 'rb'))
+        prediction['is_impossible'] = (seq(prediction['squad_null_odds'].items())
+            .map(
+            lambda x: [x[0], 1 if (x[1] > prediction['squad_eval']['best_exact_thresh']) else -1])
+        ).dict()
+        models_predictions[f"{d}"] = prediction
+    except:
+        continue
+
 dev = json.load(open('dev-v2.0.json', 'r', encoding='utf-8'))
 qid_answers = collections.OrderedDict()
 for article in dev['data']:
@@ -58,6 +94,7 @@ for article in dev['data']:
                 gold_answers = ['']
             qid_answers[qid] = gold_answers
 1
+
 
 class MyProblem(ea.Problem):  # 继承Problem父类
     def __init__(self, M=2):
@@ -164,6 +201,8 @@ def subAimFunc(args):
     eval_r = main2(dev['data'], ensemble_preds, ensemble_odds)
     f1 = (eval_r['best_exact'] + eval_r['best_f1']) / 2
     return [f1, f2]
+
+
 
 
 if __name__ == '__main__':

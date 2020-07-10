@@ -33,7 +33,7 @@ def per_tpu_run(tpu_id):
             xargs = f"gsutil -m cp -r gs://squad_cx/electra_data{tpu_id}/models/electra_large/finetuning_models/squad_model_1 gs://squad_cx/lr_epoch_models/{lr}_{epoch}_{tpu_id}"
             os.system(xargs)
 
-            xargs = f"gsutil -m cp -r gs://squad_cx/electra_data{tpu_id}/models/electra_large/results/squad_qa gs://squad_cx/bootstrap_results/{lr}_{epoch}_{tpu_id}"
+            xargs = f"gsutil -m cp -r gs://squad_cx/electra_data{tpu_id}/models/electra_large/results/squad_qa gs://squad_cx/lr_epoch_results/{lr}_{epoch}_{tpu_id}"
             os.system(xargs)
 
 

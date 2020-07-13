@@ -53,7 +53,7 @@ def run_a_model(tpu_id, model_type, batch_size=32, max_seq_length=384, lr=2e-5, 
               --predict_feature_file={predict_feature_file} \
               --predict_feature_left_file={predict_feature_left_file} \
               --init_checkpoint={init_checkpoint} \
-              --spm_model_file=30k-clean.vocab \
+              --spm_model_file=30k-clean.model \
               --max_seq_length={max_seq_length} \
               --do_train=True \
               --do_predict=True \
@@ -87,14 +87,14 @@ def run_a_model(tpu_id, model_type, batch_size=32, max_seq_length=384, lr=2e-5, 
 if __name__ == '__main__':
     # 创建新线程
     thread1 = myThread(1, )
-    # thread2 = myThread(2, )
-    # thread3 = myThread(3, )
+    thread2 = myThread(2, )
+    thread3 = myThread(3, )
     # 开启新线程
     thread1.start()
-    # thread2.start()
-    # thread3.start()
+    thread2.start()
+    thread3.start()
 
     thread1.join()
-    # thread2.join()
-    # thread3.join()
+    thread2.join()
+    thread3.join()
     print("退出主线程")

@@ -44,7 +44,7 @@ def run_a_model(tpu_id, model_type, batch_size=32, max_seq_length=384, lr=2e-5, 
     os.system(xargs)
     spm_model = os.path.join(os.path.dirname(__file__), "30k-clean.model")
 
-    xargs = f""" cd ../ALBERT &&
+    xargs = f""" cd ../ALBERT && \
             python3 run_squad_v2.py \
               --albert_config_file={config_file} \
               --output_dir={output_dir} \

@@ -3,14 +3,10 @@
 # @Author  : zhaohuayang
 # @email   : zhaohuayang@myhexin.com
 import os
-import numpy as np
+import tensorflow as tf
 import threading
 
 TPU_NAMES = ['z1', 'z2', 'c1', ]
-
-LrRange = np.arange(1e-5, 1e-4 + 1e-5, 1e-5)
-
-EpochRange = [2, 3]
 
 
 class myThread(threading.Thread):
@@ -47,6 +43,7 @@ def run_a_model(tpu_id, model_name, model_size, batch_size, max_seq_length, lr, 
           f"max_seq_length {max_seq_length}, lr {lr}, epoch {epoch}")
 
     run_dir = '../atrlp' if is_atrlp else '../master'
+    tf.io.gfile.rmtree(f"gs://squad_cx/electra_data{tpu_id}/models/{model_name}/finetuning_models/squad_model_1")
     xargs = f"gsutil -m cp -r gs://squad_cx/args_train_models/{tpu_id}_{model_name}_{batch_size}_{max_seq_length}_{lr}_{epoch}_{run_time} gs://squad_cx/electra_data{tpu_id}/models/{model_name}/finetuning_models/squad_model_1"
     os.system(xargs)
 

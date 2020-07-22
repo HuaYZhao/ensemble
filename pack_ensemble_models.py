@@ -30,7 +30,7 @@ def pack_a_model(tpu_id, model_dir):
 
     output_dir = model_dir.replace("all_ensemble_models", "all_compressed_ensemble_models")
 
-    xargs = f"python3 export.py --checkpoint {latest_checkpoint} --export_path {output_dir} --tpu_address {TPU_NAMES[tpu_id - 1]}"
+    xargs = f"python3 export.py --checkpoint {latest_checkpoint} --export_path {output_dir} --tpu_address grpc://10.121.47.58:8470"
     os.system(xargs)
 
     if "albert" in model_dir:

@@ -5,6 +5,7 @@
 import os
 import tensorflow as tf
 from functional import seq
+from multiprocessing.dummy import Pool as ThreadPool
 
 model_names = [
     'args_train_models/1_electra_large_32_480_5e-05_2_1',
@@ -26,13 +27,15 @@ model_names = [
     'pv_ensemble_models/bs32_seq512_lr5e-05_ep2.0',
     'pv_ensemble_models/albert_xxlarge_2_384_2e-5',
 ]
-models = (seq(tf.io.gfile.glob("gs://squad_cx/all_ensemble_models/*/*"))
+models = (seq(tf.io.gfile.glob("gs://squad_cx/all_compressed_ensemble_models/*/*"))
           .filter(lambda x: any([y in x for y in model_names]))
           ).list()
 print(models)
 
 os.makedirs("my_ensemble_models")
-for model in models:
+
+
+def zip_a_model(model):
     xargs = f"gsutil -m cp -r {model} ./my_ensemble_models"
     os.system(xargs)
 
@@ -40,3 +43,8 @@ for model in models:
 
     xargs = f"cd ./my_ensemble_models && 7z a -tzip {model_name}.zip {model_name} -r -mx=9"
     os.system(xargs)
+
+
+if __name__ == '__main__':
+    pool = ThreadPool(3)
+    pool.map(zip_a_model, models)

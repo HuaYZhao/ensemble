@@ -50,10 +50,40 @@ def pack_a_model(tpu_id, model_dir):
 
 
 if __name__ == '__main__':
-    all_models = (seq(tf.io.gfile.glob("gs://squad_cx/all_ensemble_models/*/*"))
-                  .filter_not(lambda x: "base" in x)
-                  .filter_not(lambda x: "albert" in x and "large" in x)
-                  ).list()
+    # all_models = (seq(tf.io.gfile.glob("gs://squad_cx/all_ensemble_models/*/*"))
+    #               .filter_not(lambda x: "base" in x)
+    #               .filter_not(lambda x: "albert" in x and "large" in x)
+    #               ).list()
+    all_models = [
+        'gs://squad_cx/all_ensemble_models/albert_args_train_answer_models/1_albert_xlarge_v1_32_384_2e-05_2_0',
+        'gs://squad_cx/all_ensemble_models/albert_args_train_answer_models/1_albert_xlarge_v2_32_384_2e-05_2_0',
+        'gs://squad_cx/all_ensemble_models/albert_args_train_answer_models/1_albert_xxlarge_v1_32_384_2e-05_2_0',
+        'gs://squad_cx/all_ensemble_models/albert_args_train_answer_models/1_albert_xxlarge_v2_32_384_2e-05_2_0',
+        'gs://squad_cx/all_ensemble_models/albert_args_train_answer_models/2_albert_xlarge_v1_32_384_2e-05_2_0',
+        'gs://squad_cx/all_ensemble_models/albert_args_train_answer_models/2_albert_xlarge_v2_32_384_2e-05_2_0',
+        'gs://squad_cx/all_ensemble_models/albert_args_train_answer_models/2_albert_xxlarge_v1_32_384_2e-05_2_0',
+        'gs://squad_cx/all_ensemble_models/albert_args_train_answer_models/2_albert_xxlarge_v2_32_384_2e-05_2_0',
+        'gs://squad_cx/all_ensemble_models/albert_args_train_answer_models/3_albert_xlarge_v1_32_384_2e-05_2_0',
+        'gs://squad_cx/all_ensemble_models/albert_args_train_answer_models/3_albert_xlarge_v2_32_384_2e-05_2_0',
+        'gs://squad_cx/all_ensemble_models/albert_args_train_answer_models/3_albert_xxlarge_v1_32_384_2e-05_2_0',
+        'gs://squad_cx/all_ensemble_models/albert_args_train_answer_models/3_albert_xxlarge_v2_32_384_2e-05_2_0',
+        'gs://squad_cx/all_ensemble_models/albert_args_train_models/1_albert_xlarge_v1_32_384_2e-05_2_0',
+        'gs://squad_cx/all_ensemble_models/albert_args_train_models/1_albert_xlarge_v2_32_384_2e-05_2_0',
+        'gs://squad_cx/all_ensemble_models/albert_args_train_models/1_albert_xxlarge_v1_32_384_2e-05_2_0',
+        'gs://squad_cx/all_ensemble_models/albert_args_train_models/1_albert_xxlarge_v2_32_384_2e-05_2_0',
+        'gs://squad_cx/all_ensemble_models/albert_args_train_models/2_albert_xlarge_v1_32_384_2e-05_2_0',
+        'gs://squad_cx/all_ensemble_models/albert_args_train_models/2_albert_xlarge_v2_32_384_2e-05_2_0',
+        'gs://squad_cx/all_ensemble_models/albert_args_train_models/2_albert_xxlarge_v1_32_384_2e-05_2_0',
+        'gs://squad_cx/all_ensemble_models/albert_args_train_models/2_albert_xxlarge_v2_32_384_2e-05_2_0',
+        'gs://squad_cx/all_ensemble_models/albert_args_train_models/3_albert_xlarge_v1_32_384_2e-05_2_0',
+        'gs://squad_cx/all_ensemble_models/albert_args_train_models/3_albert_xlarge_v2_32_384_2e-05_2_0',
+        'gs://squad_cx/all_ensemble_models/albert_args_train_models/3_albert_xxlarge_v1_32_384_2e-05_2_0',
+        'gs://squad_cx/all_ensemble_models/albert_args_train_models/3_albert_xxlarge_v2_32_384_2e-05_2_0',
+        'gs://squad_cx/all_ensemble_models/pv_ensemble_models/albert_xxlarge_2_384_2e-5',
+        'gs://squad_cx/all_ensemble_models/pv_ensemble_models/bs32_seq384_lr5e-05_ep2.0',
+        'gs://squad_cx/all_ensemble_models/pv_ensemble_models/bs32_seq512_lr3e-05_ep3',
+        'gs://squad_cx/all_ensemble_models/pv_ensemble_models/bs32_seq512_lr5e-05_ep2.0']
+
     num = len(all_models) // len(TPU_NAMES) + 1
     threads = []
     for i in range(len(TPU_NAMES)):

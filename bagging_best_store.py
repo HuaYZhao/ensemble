@@ -175,7 +175,7 @@ models = [
     "albert_args_train_results/3_albert_xxlarge_v2_32_384_2e-05_2_0",
 ]
 
-models = [models[x] for x in [1, 4, 5, 6, 8, 12, 21, 29, 32, 33, 36, 37, 39, 40, 41]]
+models = [models[x] for x in [2, 5, 6, 8, 12, 16, 22, 28, 29, 36, 37, 39, 40, 41]]
 
 pprint(models)
 all_nbest = []

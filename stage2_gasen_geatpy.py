@@ -205,7 +205,7 @@ def subAimFunc(args):
         ensemble_preds[qid] = base_preds[qid]
         ensemble_odds[qid] = np.mean((seq(indv_models_predictions.items())
                                       .map(lambda x: get_model_cof(x[0]) * x[1]['squad_null_odds'][qid])
-                                      ).list())
+                                      ).list()) + base_null_odds[qid]
     eval_r = main2(dev['data'], ensemble_preds, ensemble_odds)
     f1 = (eval_r['best_exact'] + eval_r['best_f1']) / 2
     return [f1, f2]

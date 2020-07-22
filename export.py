@@ -14,6 +14,7 @@ import os
 import tensorflow as tf
 from tensorflow.python.framework import graph_util
 from tensorflow.contrib.framework import list_variables, load_variable
+from tensorflow.python.framework.graph_util import convert_variables_to_constants
 
 flags = tf.flags
 
@@ -39,5 +40,20 @@ def export(checkpoint, export_path, tpu_address):
         new_saver.save(sess, output_ckpt)
 
 
+def frozen_pb(checkpoint, export_path, tpu_address):
+    output_pb = os.path.join(export_path, "frozen_model.pb")
+
+    sess = tf.Session(tpu_address)
+    saver = tf.train.import_meta_graph(checkpoint + '.meta', clear_devices=True)
+    saver.restore(sess, checkpoint)
+    tf.reset_default_graph()
+
+    output_graph_def = convert_variables_to_constants(sess, sess.graph_def, output_node_names=['answer_class/Squeeze:0',
+                                                                                               'start_logits/LogSoftmax:0',
+                                                                                               'end_logits/LogSoftmax:0'])
+    with tf.gfile.FastGFile(output_pb, mode='wb') as f:
+        f.write(output_graph_def.SerializeToString())
+
+
 if __name__ == '__main__':
-    export(FLAGS.checkpoint, FLAGS.export_path, FLAGS.tpu_address)
+    frozen_pb(FLAGS.checkpoint, FLAGS.export_path, FLAGS.tpu_address)

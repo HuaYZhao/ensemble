@@ -48,9 +48,9 @@ def frozen_pb(checkpoint, export_path, tpu_address):
     saver.restore(sess, checkpoint)
     tf.reset_default_graph()
 
-    output_graph_def = convert_variables_to_constants(sess, sess.graph_def, output_node_names=['answer_class/Squeeze:0',
-                                                                                               'start_logits/LogSoftmax:0',
-                                                                                               'end_logits/LogSoftmax:0'])
+    output_graph_def = convert_variables_to_constants(sess, sess.graph_def, output_node_names=['answer_class/Squeeze',
+                                                                                               'start_logits/LogSoftmax',
+                                                                                               'end_logits/LogSoftmax'])
     with tf.gfile.FastGFile(output_pb, mode='wb') as f:
         f.write(output_graph_def.SerializeToString())
 

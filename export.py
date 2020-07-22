@@ -42,17 +42,18 @@ def export(checkpoint, export_path, tpu_address):
 
 def frozen_pb(checkpoint, export_path, tpu_address):
     output_pb = os.path.join(export_path, "frozen_model.pb")
-
-    sess = tf.Session(tpu_address)
-    saver = tf.train.import_meta_graph(checkpoint + '.meta', clear_devices=True)
-    saver.restore(sess, checkpoint)
     tf.reset_default_graph()
 
-    output_graph_def = convert_variables_to_constants(sess, sess.graph_def, output_node_names=['answer_class/Squeeze',
-                                                                                               'start_logits/LogSoftmax',
-                                                                                               'end_logits/LogSoftmax'])
-    with tf.gfile.FastGFile(output_pb, mode='wb') as f:
-        f.write(output_graph_def.SerializeToString())
+    saver = tf.train.import_meta_graph(checkpoint + '.meta', clear_devices=True)
+    with tf.Session(tpu_address) as sess:
+        saver.restore(sess, checkpoint)
+
+        output_graph_def = convert_variables_to_constants(sess, sess.graph_def,
+                                                          output_node_names=['answer_class/Squeeze',
+                                                                             'start_logits/LogSoftmax',
+                                                                             'end_logits/LogSoftmax'])
+        with tf.gfile.FastGFile(output_pb, mode='wb') as f:
+            f.write(output_graph_def.SerializeToString())
 
 
 if __name__ == '__main__':

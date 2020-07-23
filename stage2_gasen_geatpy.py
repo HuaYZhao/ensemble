@@ -48,7 +48,7 @@ models = [
     "args_train_pv_results/3_electra_large_24_512_5e-05_2_0",
     "args_train_pv_results/3_electra_large_32_384_5e-05_2_0",
     "args_train_pv_results/3_electra_large_32_480_5e-05_2_0",
-    "args_train_pv_results/3_electra_large_32_512_2e-05_2_0",
+    # "args_train_pv_results/3_electra_large_32_512_2e-05_2_0",
     "args_train_pv_results/3_electra_large_32_512_5e-05_2_0",
     "args_train_pv_results/3_electra_large_48_256_6e-05_2_0",
 ]
@@ -216,7 +216,7 @@ if __name__ == '__main__':
     problem = MyProblem()  # 生成问题对象
     """==================================种群设置==============================="""
     Encoding = 'BG'  # 编码方式
-    NIND = 50  # 种群规模
+    NIND = 12  # 种群规模
     Field = ea.crtfld(Encoding, problem.varTypes, problem.ranges, problem.borders)  # 创建区域描述器
     population = ea.Population(Encoding, Field, NIND)  # 实例化种群对象（此时种群还没被初始化，仅仅是完成种群对象的实例化）
     """================================算法参数设置============================="""
@@ -224,7 +224,7 @@ if __name__ == '__main__':
 
     myAlgorithm.mutOper.Pm = 0.2  # 修改变异算子的变异概率
     myAlgorithm.recOper.XOVR = 0.9  # 修改交叉算子的交叉概率
-    myAlgorithm.MAXGEN = 1000  # 最大进化代数
+    myAlgorithm.MAXGEN = 100  # 最大进化代数
     """==========================调用算法模板进行种群进化========================"""
     print("start GA process !")
     NDSet = myAlgorithm.run()  # 执行算法模板，得到帕累托最优解集NDSet
